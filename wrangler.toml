@@ -1,0 +1,12 @@
+name = "eka-email-client"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "MAILBOX"
+database_name = "eka-mailbox"
+database_id = "e107da09-1023-4365-a943-5da5d98bdc8e"
+
+[vars]
+# Secrets (set via `wrangler secret put`):
+# AUTH_TOKEN - Bearer token for accessing the web UI
