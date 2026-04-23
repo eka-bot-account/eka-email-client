@@ -29,6 +29,7 @@ function isHtmlContent(body: string): boolean {
 
 export async function emailPage(c: Context<{ Bindings: Env }>) {
   const id = parseInt(c.req.param('id') || '');
+  const justSent = c.req.query('sent') === '1';
 
   if (isNaN(id)) {
     return c.html(<Layout title="Not Found"><div class="empty">Email not found.</div></Layout>, 404);
@@ -54,6 +55,10 @@ export async function emailPage(c: Context<{ Bindings: Env }>) {
   return c.html(
     <Layout title={email.subject}>
       <a href="/" class="back-link">&larr; Back to inbox</a>
+
+      {justSent && (
+        <div class="sent-banner">Reply sent successfully.</div>
+      )}
 
       <div class="email-detail">
         <div class="email-header">
@@ -96,6 +101,12 @@ export async function emailPage(c: Context<{ Bindings: Env }>) {
             <span style="color: var(--text-muted);">No body content.</span>
           </div>
         )}
+
+        <div style="padding: 16px 20px; border-top: 1px solid var(--border);">
+          <a href={`/reply/${email.id}`} class="btn-reply">
+            &larr; Reply
+          </a>
+        </div>
       </div>
     </Layout>
   );

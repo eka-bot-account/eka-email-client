@@ -10,3 +10,5 @@ database_id = "e107da09-1023-4365-a943-5da5d98bdc8e"
 [vars]
 # Secrets (set via `wrangler secret put`):
 # AUTH_TOKEN - Bearer token for accessing the web UI
+# EMAIL_WORKER_URL - URL of the email worker API (e.g. https://eka-email-worker.hello-3fd.workers.dev)
+# EMAIL_API_TOKEN - Bearer token for the email worker API

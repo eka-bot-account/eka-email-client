@@ -279,6 +279,121 @@ nav .active { color: var(--text); font-weight: 500; }
   color: var(--text-muted);
   margin-bottom: 16px;
 }
+
+.compose-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: var(--accent-dim);
+}
+
+.form-field select {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 200px;
+  line-height: 1.6;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 4px;
+}
+
+.btn-send {
+  background: var(--accent-dim);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-send:hover { background: var(--accent); }
+
+.btn-cancel {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 10px 16px;
+}
+
+.btn-cancel:hover { color: var(--text); text-decoration: none; }
+
+.btn-reply {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-reply:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent-dim);
+  text-decoration: none;
+}
+
+.sent-banner {
+  background: rgba(34,197,94,0.1);
+  color: #22c55e;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
 `;
 
 export const Layout: FC<{ title?: string; children: any }> = ({ title, children }) => (
@@ -296,6 +411,7 @@ export const Layout: FC<{ title?: string; children: any }> = ({ title, children 
           <nav>
             <a href="/">Inbox</a>
             <a href="/search">Search</a>
+            <a href="/compose" style="background: var(--accent-dim); color: #fff; padding: 5px 12px; border-radius: 5px; font-weight: 500;">Compose</a>
           </nav>
         </div>
       </header>

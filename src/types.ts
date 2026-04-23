@@ -1,6 +1,8 @@
 export interface Env {
   MAILBOX: D1Database;
   AUTH_TOKEN: string;
+  EMAIL_WORKER_URL: string;
+  EMAIL_API_TOKEN: string;
 }
 
 export interface Email {

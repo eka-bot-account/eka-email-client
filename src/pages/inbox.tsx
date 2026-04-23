@@ -27,6 +27,7 @@ function extractName(address: string): string {
 }
 
 export async function inboxPage(c: Context<{ Bindings: Env }>) {
+  const justSent = c.req.query('sent') === '1';
   const direction = c.req.query('direction') || 'all';
   const page = parseInt(c.req.query('page') || '1');
   const limit = 30;
@@ -65,6 +66,10 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
 
   return c.html(
     <Layout>
+      {justSent && (
+        <div class="sent-banner">Email sent successfully.</div>
+      )}
+
       <div class="stats">
         <span>{total} emails</span>
         {unreadCount > 0 && <span>{unreadCount} unread</span>}

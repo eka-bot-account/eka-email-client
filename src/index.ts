@@ -5,6 +5,7 @@ import { inboxPage } from './pages/inbox';
 import { emailPage } from './pages/email';
 import { searchPage } from './pages/search';
 import { loginPage, handleLogin } from './pages/login';
+import { composePage, handleCompose } from './pages/compose';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -41,5 +42,22 @@ app.get('/email/:id', (c) => emailPage(c));
 
 // Search
 app.get('/search', (c) => searchPage(c));
+
+// Compose
+app.get('/compose', (c) => composePage(c));
+app.post('/compose', (c) => handleCompose(c));
+
+// Reply (loads compose with reply context)
+app.get('/reply/:id', async (c) => {
+  const id = parseInt(c.req.param('id') || '');
+  if (isNaN(id)) return c.redirect('/');
+
+  const email = await c.env.MAILBOX.prepare(
+    'SELECT * FROM emails WHERE id = ?'
+  ).bind(id).first();
+
+  if (!email) return c.redirect('/');
+  return composePage(c, { replyTo: email as any });
+});
 
 export default app;
