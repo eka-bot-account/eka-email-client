@@ -41,7 +41,50 @@ export async function searchPage(c: Context<{ Bindings: Env }>) {
 
   return c.html(
     <Layout title="Search">
-      <h2 style="font-size: 18px; margin-bottom: 16px;">Search emails</h2>
+      <style>{`
+        .search-hero {
+          margin-bottom: 28px;
+          position: relative;
+        }
+
+        .search-hero::after {
+          content: '';
+          position: absolute;
+          bottom: -14px;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+          opacity: 0.15;
+        }
+
+        .search-result-count {
+          font-size: 12px;
+          font-family: var(--mono);
+          color: var(--text-muted);
+          margin-bottom: 16px;
+          padding: 6px 12px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          display: inline-block;
+        }
+
+        .search-snippet {
+          font-size: 12px;
+          font-family: var(--mono);
+          color: var(--text-muted);
+          margin-top: 4px;
+          line-height: 1.5;
+        }
+      `}</style>
+
+      <div class="search-hero">
+        <div class="page-title">
+          <span class="title-icon">/</span>
+          Search
+        </div>
+      </div>
 
       <form class="search-form" method="get" action="/search">
         <input
@@ -55,28 +98,29 @@ export async function searchPage(c: Context<{ Bindings: Env }>) {
       </form>
 
       {error && (
-        <div style="color: var(--danger); font-size: 13px; margin-bottom: 16px;">{error}</div>
+        <div class="error-banner">{error}</div>
       )}
 
       {query && !error && (
-        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        <div class="search-result-count">
           {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
         </div>
       )}
 
       {results.length > 0 && (
         <div class="email-list">
-          {results.map((r) => (
+          {results.map((r, i) => (
             <a
               href={`/email/${r.id}`}
               class="email-row"
-              style="text-decoration: none; color: inherit;"
+              style={`text-decoration: none; color: inherit; animation-delay: ${Math.min(i * 0.03, 0.5)}s;`}
             >
+              <div class="row-indicator"></div>
               <div>
-                <div class="from" style="font-size: 13px;">{r.from_address}</div>
+                <div class="from">{r.from_address}</div>
                 <div class="subject">{r.subject}</div>
                 <div
-                  style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"
+                  class="search-snippet"
                   dangerouslySetInnerHTML={{ __html: r.snippet }}
                 />
               </div>

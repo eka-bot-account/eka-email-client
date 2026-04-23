@@ -76,7 +76,7 @@ export async function emailPage(c: Context<{ Bindings: Env }>) {
             )}
             <span class="label">Date</span>
             <span>{formatFullDate(email.received_at)}</span>
-            <span class="label">Direction</span>
+            <span class="label">Type</span>
             <span><span class={`badge ${email.direction}`}>{email.direction}</span></span>
           </div>
         </div>
@@ -87,7 +87,7 @@ export async function emailPage(c: Context<{ Bindings: Env }>) {
               <iframe
                 srcdoc={email.body}
                 sandbox="allow-same-origin"
-                style="width: 100%; min-height: 500px; border: none; background: #fff; border-radius: 4px;"
+                style="width: 100%; min-height: 500px; border: none; background: #fff; border-radius: var(--radius);"
                 onload="this.style.height = this.contentWindow.document.body.scrollHeight + 'px'"
               />
             </div>
@@ -98,11 +98,11 @@ export async function emailPage(c: Context<{ Bindings: Env }>) {
           )
         ) : (
           <div class="email-body">
-            <span style="color: var(--text-muted);">No body content.</span>
+            <span style="color: var(--text-muted); font-family: var(--mono); font-size: 13px;">No body content.</span>
           </div>
         )}
 
-        <div style="padding: 16px 20px; border-top: 1px solid var(--border);">
+        <div style="padding: 18px 24px; border-top: 1px solid var(--border);">
           <a href={`/reply/${email.id}`} class="btn-reply">
             &larr; Reply
           </a>

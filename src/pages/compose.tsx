@@ -73,81 +73,102 @@ export async function composePage(c: Context<{ Bindings: Env }>, props: ComposeP
 
   return c.html(
     <Layout title={replyTo ? 'Reply' : 'Compose'}>
+      <style>{`
+        .compose-hero {
+          margin-bottom: 28px;
+          position: relative;
+        }
+
+        .compose-hero::after {
+          content: '';
+          position: absolute;
+          bottom: -14px;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+          opacity: 0.15;
+        }
+      `}</style>
+
       {replyTo && (
         <a href={`/email/${replyTo.id}`} class="back-link">&larr; Back to email</a>
       )}
 
-      <h2 style="font-size: 18px; margin-bottom: 16px;">
-        {replyTo ? 'Reply' : 'Compose'}
-      </h2>
+      <div class="compose-hero">
+        <div class="page-title">
+          <span class="title-icon">{replyTo ? '\u21B5' : '\u270E'}</span>
+          {replyTo ? 'Reply' : 'Compose'}
+        </div>
+      </div>
 
       {error && (
-        <div style="background: rgba(239,68,68,0.1); color: #ef4444; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px;">
-          {error}
-        </div>
+        <div class="error-banner">{error}</div>
       )}
 
       {success && (
-        <div style="background: rgba(34,197,94,0.1); color: #22c55e; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px;">
-          {success}
-        </div>
+        <div class="sent-banner">{success}</div>
       )}
 
-      <form method="post" action="/compose" class="compose-form">
-        {replyTo && <input type="hidden" name="in_reply_to_id" value={String(replyTo.id)} />}
+      <div class="section-card">
+        <div class="section-card-body">
+          <form method="post" action="/compose" class="compose-form">
+            {replyTo && <input type="hidden" name="in_reply_to_id" value={String(replyTo.id)} />}
 
-        <div class="form-field">
-          <label for="from_address">From</label>
-          <select name="from_address" id="from_address">
-            <option value="eka@ai.weiyen.net" selected={defaultFrom === 'eka@ai.weiyen.net'}>
-              Eka &lt;eka@ai.weiyen.net&gt;
-            </option>
-            <option value="hello@stratachecks.com" selected={defaultFrom === 'hello@stratachecks.com'}>
-              StrataChecks &lt;hello@stratachecks.com&gt;
-            </option>
-          </select>
-        </div>
+            <div class="form-field">
+              <label for="from_address">From</label>
+              <select name="from_address" id="from_address">
+                <option value="eka@ai.weiyen.net" selected={defaultFrom === 'eka@ai.weiyen.net'}>
+                  Eka &lt;eka@ai.weiyen.net&gt;
+                </option>
+                <option value="hello@stratachecks.com" selected={defaultFrom === 'hello@stratachecks.com'}>
+                  StrataChecks &lt;hello@stratachecks.com&gt;
+                </option>
+              </select>
+            </div>
 
-        <div class="form-field">
-          <label for="to">To</label>
-          <input
-            type="email"
-            name="to"
-            id="to"
-            placeholder="recipient@example.com"
-            value={defaultTo}
-            required
-          />
-        </div>
+            <div class="form-field">
+              <label for="to">To</label>
+              <input
+                type="email"
+                name="to"
+                id="to"
+                placeholder="recipient@example.com"
+                value={defaultTo}
+                required
+              />
+            </div>
 
-        <div class="form-field">
-          <label for="subject">Subject</label>
-          <input
-            type="text"
-            name="subject"
-            id="subject"
-            placeholder="Subject"
-            value={defaultSubject}
-            required
-          />
-        </div>
+            <div class="form-field">
+              <label for="subject">Subject</label>
+              <input
+                type="text"
+                name="subject"
+                id="subject"
+                placeholder="Subject"
+                value={defaultSubject}
+                required
+              />
+            </div>
 
-        <div class="form-field">
-          <label for="body">Message</label>
-          <textarea
-            name="body"
-            id="body"
-            rows={16}
-            placeholder="Write your email..."
-            required
-          >{defaultBody}</textarea>
-        </div>
+            <div class="form-field">
+              <label for="body">Message</label>
+              <textarea
+                name="body"
+                id="body"
+                rows={16}
+                placeholder="Write your email..."
+                required
+              >{defaultBody}</textarea>
+            </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-send">Send</button>
-          <a href={replyTo ? `/email/${replyTo.id}` : '/'} class="btn-cancel">Cancel</a>
+            <div class="form-actions">
+              <button type="submit" class="btn-send">Send</button>
+              <a href={replyTo ? `/email/${replyTo.id}` : '/'} class="btn-cancel">Cancel</a>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </Layout>
   );
 }

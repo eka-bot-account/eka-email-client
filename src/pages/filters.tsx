@@ -62,24 +62,7 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
   return c.html(
     <Layout title="Filters">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap');
-
-        .filters-page {
-          --f-accent: #ff6b35;
-          --f-accent-glow: rgba(255, 107, 53, 0.15);
-          --f-accent-dim: #cc5429;
-          --f-enabled: #22c55e;
-          --f-enabled-glow: rgba(34, 197, 94, 0.12);
-          --f-disabled: #555;
-          --f-card: #141414;
-          --f-card-border: #1e1e1e;
-          --f-card-hover: #191919;
-          --f-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-          --f-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-          font-family: var(--f-sans);
-        }
-
-        /* ── Header Section ── */
+        /* ── Filter Page ── */
         .filters-hero {
           margin-bottom: 36px;
           position: relative;
@@ -92,49 +75,18 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
           left: 0;
           right: 0;
           height: 1px;
-          background: linear-gradient(90deg, var(--f-accent) 0%, transparent 60%);
-        }
-
-        .filters-title {
-          font-family: var(--f-sans);
-          font-size: 28px;
-          font-weight: 700;
-          letter-spacing: -0.03em;
-          color: #fff;
-          margin-bottom: 6px;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-
-        .filters-title .icon {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 36px;
-          height: 36px;
-          background: var(--f-accent-glow);
-          border: 1px solid rgba(255, 107, 53, 0.25);
-          border-radius: 8px;
-          font-size: 16px;
-        }
-
-        .filters-subtitle {
-          font-size: 14px;
-          color: var(--text-muted);
-          margin-left: 50px;
-          line-height: 1.5;
+          background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+          opacity: 0.15;
         }
 
         .filters-stats {
           display: flex;
-          gap: 20px;
-          margin-left: 50px;
+          gap: 16px;
           margin-top: 12px;
         }
 
         .stat-chip {
-          font-family: var(--f-mono);
+          font-family: var(--mono);
           font-size: 12px;
           padding: 4px 10px;
           border-radius: 4px;
@@ -153,8 +105,12 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
           display: inline-block;
         }
 
-        .stat-chip .dot.active { background: var(--f-enabled); box-shadow: 0 0 6px var(--f-enabled-glow); }
-        .stat-chip .dot.total { background: var(--f-accent); }
+        .stat-chip .dot.active {
+          background: var(--green);
+          box-shadow: 0 0 6px var(--green-dim);
+        }
+
+        .stat-chip .dot.total { background: var(--accent); }
 
         /* ── Filter Cards ── */
         .filter-grid {
@@ -162,30 +118,25 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
           flex-direction: column;
           gap: 2px;
           margin-bottom: 32px;
-          border-radius: 10px;
+          border-radius: var(--radius-lg);
           overflow: hidden;
-          border: 1px solid var(--f-card-border);
+          border: 1px solid var(--border);
         }
 
         .filter-card {
-          background: var(--f-card);
+          background: var(--surface);
           padding: 16px 20px;
           display: grid;
           grid-template-columns: 6px 1fr auto;
           gap: 16px;
           align-items: center;
-          transition: background 0.2s ease, transform 0.15s ease;
+          transition: background var(--transition);
           position: relative;
-          animation: cardSlideIn 0.3s ease both;
+          animation: slideUp 0.3s ease both;
         }
 
         .filter-card:hover {
-          background: var(--f-card-hover);
-        }
-
-        @keyframes cardSlideIn {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
+          background: var(--surface-hover);
         }
 
         .filter-indicator {
@@ -196,13 +147,13 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .filter-indicator.on {
-          background: var(--f-enabled);
-          box-shadow: 0 0 8px var(--f-enabled-glow), 0 0 20px rgba(34, 197, 94, 0.06);
+          background: var(--green);
+          box-shadow: 0 0 8px var(--green-dim), 0 0 20px rgba(52, 211, 153, 0.06);
         }
 
         .filter-indicator.off {
-          background: var(--f-disabled);
-          opacity: 0.4;
+          background: var(--text-muted);
+          opacity: 0.3;
         }
 
         .filter-info {
@@ -210,6 +161,7 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .filter-name {
+          font-family: var(--body);
           font-weight: 600;
           font-size: 14px;
           color: #fff;
@@ -222,7 +174,7 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .filter-rule {
-          font-family: var(--f-mono);
+          font-family: var(--mono);
           font-size: 12px;
           color: var(--text-muted);
           display: flex;
@@ -232,8 +184,8 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .rule-field {
-          background: rgba(255, 107, 53, 0.08);
-          color: var(--f-accent);
+          background: var(--accent-glow);
+          color: var(--accent);
           padding: 2px 8px;
           border-radius: 3px;
           font-weight: 500;
@@ -241,12 +193,12 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .rule-op {
-          color: #666;
+          color: var(--text-muted);
           font-style: italic;
         }
 
         .rule-value {
-          color: var(--accent);
+          color: var(--blue);
           max-width: 300px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -266,13 +218,13 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         .action-btn {
           background: transparent;
           border: 1px solid transparent;
-          border-radius: 6px;
+          border-radius: var(--radius);
           padding: 6px 14px;
           font-size: 12px;
-          font-family: var(--f-sans);
+          font-family: var(--body);
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all var(--transition);
           color: var(--text-muted);
         }
 
@@ -283,30 +235,30 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .action-btn.toggle-off:hover {
-          color: var(--f-enabled);
-          border-color: rgba(34, 197, 94, 0.3);
-          background: rgba(34, 197, 94, 0.06);
+          color: var(--green);
+          border-color: rgba(52, 211, 153, 0.3);
+          background: var(--green-dim);
         }
 
         .action-btn.toggle-on:hover {
-          color: #f59e0b;
-          border-color: rgba(245, 158, 11, 0.3);
-          background: rgba(245, 158, 11, 0.06);
+          color: var(--yellow);
+          border-color: rgba(251, 191, 36, 0.3);
+          background: rgba(251, 191, 36, 0.06);
         }
 
         .action-btn.delete:hover {
-          color: var(--danger);
-          border-color: rgba(239, 68, 68, 0.3);
-          background: rgba(239, 68, 68, 0.06);
+          color: var(--red);
+          border-color: rgba(248, 113, 113, 0.3);
+          background: var(--red-dim);
         }
 
         /* ── Empty State ── */
-        .empty-state {
+        .filters-empty {
           text-align: center;
           padding: 56px 20px;
           margin-bottom: 32px;
-          border: 1px dashed #2a2a2a;
-          border-radius: 10px;
+          border: 1px dashed var(--border);
+          border-radius: var(--radius-lg);
           background: repeating-linear-gradient(
             -45deg,
             transparent,
@@ -316,71 +268,28 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
           );
         }
 
-        .empty-icon {
+        .filters-empty-icon {
           font-size: 32px;
           margin-bottom: 12px;
           opacity: 0.4;
           filter: grayscale(0.5);
         }
 
-        .empty-text {
+        .filters-empty-text {
           font-size: 15px;
           color: var(--text-muted);
           font-weight: 500;
           margin-bottom: 4px;
         }
 
-        .empty-hint {
+        .filters-empty-hint {
           font-size: 13px;
-          color: #555;
+          font-family: var(--mono);
+          color: var(--text-muted);
+          opacity: 0.6;
         }
 
         /* ── Create Form ── */
-        .create-section {
-          position: relative;
-        }
-
-        .create-panel {
-          background: var(--f-card);
-          border: 1px solid var(--f-card-border);
-          border-radius: 10px;
-          overflow: hidden;
-        }
-
-        .create-header {
-          padding: 16px 20px;
-          border-bottom: 1px solid var(--f-card-border);
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .create-header h3 {
-          font-family: var(--f-sans);
-          font-size: 14px;
-          font-weight: 600;
-          color: #fff;
-          letter-spacing: -0.01em;
-        }
-
-        .create-header .plus-icon {
-          width: 22px;
-          height: 22px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--f-accent-glow);
-          border: 1px solid rgba(255, 107, 53, 0.2);
-          border-radius: 5px;
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--f-accent);
-        }
-
-        .create-body {
-          padding: 20px;
-        }
-
         .create-form {
           display: flex;
           flex-direction: column;
@@ -403,49 +312,51 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         .field-group {
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 6px;
         }
 
         .field-label {
           font-size: 11px;
           font-weight: 600;
-          color: #555;
+          color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.08em;
-          font-family: var(--f-mono);
+          font-family: var(--mono);
         }
 
         .field-input,
         .field-select {
-          background: #0c0c0c;
-          border: 1px solid #222;
-          border-radius: 6px;
-          padding: 10px 12px;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 11px 14px;
           color: var(--text);
           font-size: 14px;
-          font-family: var(--f-sans);
+          font-family: var(--body);
           outline: none;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          transition: border-color var(--transition), box-shadow var(--transition);
         }
 
         .field-input:focus,
         .field-select:focus {
-          border-color: var(--f-accent-dim);
-          box-shadow: 0 0 0 3px var(--f-accent-glow);
+          border-color: var(--accent-dim);
+          box-shadow: 0 0 0 3px var(--accent-glow);
         }
 
         .field-input::placeholder {
-          color: #3a3a3a;
+          color: var(--text-muted);
+          font-family: var(--mono);
+          font-size: 13px;
         }
 
         .field-select {
           cursor: pointer;
           -webkit-appearance: none;
           appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%235a5a6e' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
           background-repeat: no-repeat;
-          background-position: right 12px center;
-          padding-right: 32px;
+          background-position: right 14px center;
+          padding-right: 36px;
         }
 
         .submit-row {
@@ -456,22 +367,22 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .btn-create {
-          background: var(--f-accent);
+          background: var(--accent);
           color: #fff;
           border: none;
-          border-radius: 6px;
-          padding: 10px 28px;
+          border-radius: var(--radius);
+          padding: 11px 28px;
           font-size: 14px;
           font-weight: 600;
-          font-family: var(--f-sans);
+          font-family: var(--body);
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all var(--transition);
           letter-spacing: -0.01em;
         }
 
         .btn-create:hover {
-          background: #ff7d4f;
-          box-shadow: 0 4px 16px rgba(255, 107, 53, 0.25);
+          background: var(--accent-hover);
+          box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
           transform: translateY(-1px);
         }
 
@@ -482,8 +393,9 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
 
         .submit-hint {
           font-size: 12px;
-          color: #444;
-          font-family: var(--f-mono);
+          color: var(--text-muted);
+          font-family: var(--mono);
+          opacity: 0.6;
         }
 
         /* ── Suggestions Dropdown ── */
@@ -493,9 +405,9 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
           top: 100%;
           left: 0;
           right: 0;
-          background: #111;
-          border: 1px solid #2a2a2a;
-          border-radius: 8px;
+          background: var(--surface);
+          border: 1px solid var(--border-hover);
+          border-radius: var(--radius);
           max-height: 220px;
           overflow-y: auto;
           z-index: 20;
@@ -516,25 +428,20 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
 
         .suggestions-dropdown.active {
           display: block;
-          animation: dropdownReveal 0.15s ease;
-        }
-
-        @keyframes dropdownReveal {
-          from { opacity: 0; transform: translateY(-4px); }
-          to { opacity: 1; transform: translateY(0); }
+          animation: slideDown 0.15s ease;
         }
 
         .suggestion-item {
           padding: 10px 14px;
           font-size: 13px;
-          font-family: var(--f-mono);
+          font-family: var(--mono);
           cursor: pointer;
-          color: var(--text-muted);
+          color: var(--text-secondary);
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
           transition: background 0.1s ease;
-          border-bottom: 1px solid #1a1a1a;
+          border-bottom: 1px solid var(--border);
         }
 
         .suggestion-item:last-child {
@@ -542,12 +449,12 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
         }
 
         .suggestion-item:hover {
-          background: #1a1a1a;
+          background: var(--surface-hover);
           color: var(--text);
         }
 
         .suggestion-item .hl {
-          color: var(--f-accent);
+          color: var(--accent);
           font-weight: 600;
         }
 
@@ -567,21 +474,17 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
             grid-column: 2;
             justify-self: start;
           }
-
-          .filters-title { font-size: 22px; }
-          .filters-subtitle, .filters-stats { margin-left: 0; }
-          .filters-title .icon { display: none; }
         }
       `}</style>
 
-      <div class="filters-page">
+      <div>
         {/* ── Hero ── */}
         <div class="filters-hero">
-          <div class="filters-title">
-            <span class="icon">{'\u2AF6'}</span>
+          <div class="page-title">
+            <span class="title-icon">{'\u2AF6'}</span>
             Filters
           </div>
-          <p class="filters-subtitle">
+          <p class="page-subtitle" style="margin-bottom: 0;">
             Rules that hide matching emails from your inbox. Filtered emails are still searchable.
           </p>
           {totalCount > 0 && (
@@ -636,67 +539,65 @@ export async function filtersPage(c: Context<{ Bindings: Env }>) {
             ))}
           </div>
         ) : (
-          <div class="empty-state">
-            <div class="empty-icon">{'\u2AF6'}</div>
-            <div class="empty-text">No filters yet</div>
-            <div class="empty-hint">Create your first rule below to start filtering noise</div>
+          <div class="filters-empty">
+            <div class="filters-empty-icon">{'\u2AF6'}</div>
+            <div class="filters-empty-text">No filters yet</div>
+            <div class="filters-empty-hint">Create your first rule below to start filtering noise</div>
           </div>
         )}
 
         {/* ── Create Form ── */}
-        <div class="create-section">
-          <div class="create-panel">
-            <div class="create-header">
-              <span class="plus-icon">+</span>
-              <h3>New filter</h3>
-            </div>
-            <div class="create-body">
-              <form method="post" action="/filters" class="create-form">
-                <div class="form-row two-col">
-                  <div class="field-group">
-                    <label class="field-label" for="name">Name</label>
-                    <input class="field-input" type="text" name="name" id="name" placeholder="GitHub Notifications" required />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" for="filter-field">Field</label>
-                    <select class="field-select" name="field" id="filter-field">
-                      <option value="from_address">{'\u2190'} From</option>
-                      <option value="subject">{'\u2261'} Subject</option>
-                      <option value="to_address">{'\u2192'} To</option>
-                    </select>
-                  </div>
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="header-icon">+</span>
+            <h3>New filter</h3>
+          </div>
+          <div class="section-card-body">
+            <form method="post" action="/filters" class="create-form">
+              <div class="form-row two-col">
+                <div class="field-group">
+                  <label class="field-label" for="name">Name</label>
+                  <input class="field-input" type="text" name="name" id="name" placeholder="GitHub Notifications" required />
                 </div>
+                <div class="field-group">
+                  <label class="field-label" for="filter-field">Field</label>
+                  <select class="field-select" name="field" id="filter-field">
+                    <option value="from_address">{'\u2190'} From</option>
+                    <option value="subject">{'\u2261'} Subject</option>
+                    <option value="to_address">{'\u2192'} To</option>
+                  </select>
+                </div>
+              </div>
 
-                <div class="form-row auto-fill">
-                  <div class="field-group">
-                    <label class="field-label" for="operator">Operator</label>
-                    <select class="field-select" name="operator" id="operator">
-                      <option value="contains">contains</option>
-                      <option value="equals">equals</option>
-                      <option value="starts_with">starts with</option>
-                    </select>
-                  </div>
-                  <div class="field-group" style="position: relative;">
-                    <label class="field-label" for="filter-value">Value</label>
-                    <input
-                      class="field-input"
-                      type="text"
-                      name="value"
-                      id="filter-value"
-                      placeholder="notifications@github.com"
-                      required
-                      autocomplete="off"
-                    />
-                    <div id="suggestions" class="suggestions-dropdown"></div>
-                  </div>
+              <div class="form-row auto-fill">
+                <div class="field-group">
+                  <label class="field-label" for="operator">Operator</label>
+                  <select class="field-select" name="operator" id="operator">
+                    <option value="contains">contains</option>
+                    <option value="equals">equals</option>
+                    <option value="starts_with">starts with</option>
+                  </select>
                 </div>
+                <div class="field-group" style="position: relative;">
+                  <label class="field-label" for="filter-value">Value</label>
+                  <input
+                    class="field-input"
+                    type="text"
+                    name="value"
+                    id="filter-value"
+                    placeholder="notifications@github.com"
+                    required
+                    autocomplete="off"
+                  />
+                  <div id="suggestions" class="suggestions-dropdown"></div>
+                </div>
+              </div>
 
-                <div class="submit-row">
-                  <button type="submit" class="btn-create">Add filter</button>
-                  <span class="submit-hint">Filter takes effect immediately</span>
-                </div>
-              </form>
-            </div>
+              <div class="submit-row">
+                <button type="submit" class="btn-create">Add filter</button>
+                <span class="submit-hint">Filter takes effect immediately</span>
+              </div>
+            </form>
           </div>
         </div>
       </div>

@@ -95,8 +95,16 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
       )}
 
       <div class="stats">
-        <span>{total} emails</span>
-        {unreadCount > 0 && <span>{unreadCount} unread</span>}
+        <span class="stat-item">
+          <span class="stat-dot total"></span>
+          {total} emails
+        </span>
+        {unreadCount > 0 && (
+          <span class="stat-item">
+            <span class="stat-dot unread"></span>
+            {unreadCount} unread
+          </span>
+        )}
       </div>
 
       <div class="filter-bar">
@@ -109,12 +117,13 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
         <div class="empty">No emails yet.</div>
       ) : (
         <div class="email-list">
-          {emails.results.map((email) => (
+          {emails.results.map((email, i) => (
             <a
               href={`/email/${email.id}`}
               class={`email-row ${email.read ? '' : 'unread'}`}
-              style="text-decoration: none; color: inherit;"
+              style={`text-decoration: none; color: inherit; animation-delay: ${Math.min(i * 0.03, 0.5)}s;`}
             >
+              <div class="row-indicator"></div>
               <div>
                 <div class="from">{extractName(email.from_address)}</div>
                 <div class="subject">{email.subject}</div>
