@@ -6,6 +6,7 @@ import { emailPage } from './pages/email';
 import { searchPage } from './pages/search';
 import { loginPage, handleLogin } from './pages/login';
 import { composePage, handleCompose } from './pages/compose';
+import { filtersPage, handleCreateFilter, handleToggleFilter, handleDeleteFilter } from './pages/filters';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -46,6 +47,12 @@ app.get('/search', (c) => searchPage(c));
 // Compose
 app.get('/compose', (c) => composePage(c));
 app.post('/compose', (c) => handleCompose(c));
+
+// Filters
+app.get('/filters', (c) => filtersPage(c));
+app.post('/filters', (c) => handleCreateFilter(c));
+app.post('/filters/:id/toggle', (c) => handleToggleFilter(c));
+app.post('/filters/:id/delete', (c) => handleDeleteFilter(c));
 
 // Reply (loads compose with reply context)
 app.get('/reply/:id', async (c) => {

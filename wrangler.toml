@@ -6,6 +6,7 @@ compatibility_date = "2024-12-01"
 binding = "MAILBOX"
 database_name = "eka-mailbox"
 database_id = "e107da09-1023-4365-a943-5da5d98bdc8e"
+migrations_dir = "migrations"
 
 [vars]
 # Secrets (set via `wrangler secret put`):

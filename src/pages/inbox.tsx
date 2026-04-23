@@ -33,16 +33,38 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
   const limit = 30;
   const offset = (page - 1) * limit;
 
-  let whereClause = '';
+  // Build filter exclusions from enabled filters
+  const filters = await c.env.MAILBOX.prepare(
+    'SELECT field, operator, value FROM email_filters WHERE enabled = 1'
+  ).all<{ field: string; operator: string; value: string }>();
+
+  const conditions: string[] = [];
   const params: any[] = [];
 
   if (direction === 'inbound') {
-    whereClause = 'WHERE direction = ?';
+    conditions.push('direction = ?');
     params.push('inbound');
   } else if (direction === 'outbound') {
-    whereClause = 'WHERE direction = ?';
+    conditions.push('direction = ?');
     params.push('outbound');
   }
+
+  // Apply each filter as a NOT condition
+  for (const f of filters.results) {
+    const col = ['from_address', 'subject', 'to_address'].includes(f.field) ? f.field : 'from_address';
+    if (f.operator === 'contains') {
+      conditions.push(`${col} NOT LIKE ?`);
+      params.push(`%${f.value}%`);
+    } else if (f.operator === 'equals') {
+      conditions.push(`${col} != ?`);
+      params.push(f.value);
+    } else if (f.operator === 'starts_with') {
+      conditions.push(`${col} NOT LIKE ?`);
+      params.push(`${f.value}%`);
+    }
+  }
+
+  const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
   const countResult = await c.env.MAILBOX.prepare(
     `SELECT COUNT(*) as total FROM emails ${whereClause}`

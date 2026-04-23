@@ -411,6 +411,7 @@ export const Layout: FC<{ title?: string; children: any }> = ({ title, children 
           <nav>
             <a href="/">Inbox</a>
             <a href="/search">Search</a>
+            <a href="/filters">Filters</a>
             <a href="/compose" style="background: var(--accent-dim); color: #fff; padding: 5px 12px; border-radius: 5px; font-weight: 500;">Compose</a>
           </nav>
         </div>
