@@ -33,7 +33,7 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
   const limit = 30;
   const offset = (page - 1) * limit;
 
-  // Build filter exclusions from enabled filters
+  // Build filter exclusions from active email_filters
   const filters = await c.env.MAILBOX.prepare(
     'SELECT field, operator, value FROM email_filters WHERE enabled = 1'
   ).all<{ field: string; operator: string; value: string }>();
@@ -41,17 +41,11 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
   const conditions: string[] = [];
   const params: any[] = [];
 
-  if (direction === 'inbound') {
-    conditions.push('direction = ?');
-    params.push('inbound');
-  } else if (direction === 'outbound') {
-    conditions.push('direction = ?');
-    params.push('outbound');
-  }
-
   // Apply each filter as a NOT condition
   for (const f of filters.results) {
-    const col = ['from_address', 'subject', 'to_address'].includes(f.field) ? f.field : 'from_address';
+    const col = ['from_address', 'subject', 'to_address'].includes(f.field) ? f.field : null;
+    if (!col) continue;
+
     if (f.operator === 'contains') {
       conditions.push(`${col} NOT LIKE ?`);
       params.push(`%${f.value}%`);
@@ -64,7 +58,15 @@ export async function inboxPage(c: Context<{ Bindings: Env }>) {
     }
   }
 
-  const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+  if (direction === 'inbound') {
+    conditions.push('direction = ?');
+    params.push('inbound');
+  } else if (direction === 'outbound') {
+    conditions.push('direction = ?');
+    params.push('outbound');
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   const countResult = await c.env.MAILBOX.prepare(
     `SELECT COUNT(*) as total FROM emails ${whereClause}`
