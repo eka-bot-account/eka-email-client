@@ -11,7 +11,18 @@ migrations_dir = "migrations"
 [vars]
 # Non-secret config. Kept here (not just in the dashboard) so `wrangler deploy`
 # does not drop it — wrangler removes any vars not present in this file.
+# Used only as a base for the request path; the actual call goes through the
+# EMAIL_WORKER service binding below, not over the public hostname.
 EMAIL_WORKER_URL = "https://eka-email-worker.hello-3fd.workers.dev"
+
+# Service binding to the email backend worker. REQUIRED: both workers live on the
+# same workers.dev zone, and Cloudflare blocks plain worker→worker HTTP
+# subrequests on the same zone (error 1042 → the client saw "HTTP 404: error
+# code 1042" when sending). A service binding is the supported way for one Worker
+# to invoke another, and it bypasses the zone restriction entirely.
+[[services]]
+binding = "EMAIL_WORKER"
+service = "eka-email-worker"
 
 # Secrets (set via `wrangler secret put`, persist across deploys):
 # AUTH_TOKEN - Bearer token for accessing the web UI

@@ -3,6 +3,10 @@ export interface Env {
   AUTH_TOKEN: string;
   EMAIL_WORKER_URL: string;
   EMAIL_API_TOKEN: string;
+  // Service binding to the eka-email-worker backend. Used instead of a plain
+  // fetch() because same-zone worker→worker HTTP subrequests are blocked by
+  // Cloudflare (error 1042).
+  EMAIL_WORKER: Fetcher;
 }
 
 export interface Email {

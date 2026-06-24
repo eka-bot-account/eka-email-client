@@ -215,11 +215,20 @@ export async function handleCompose(c: Context<{ Bindings: Env }>) {
   try {
     const workerUrl = c.env.EMAIL_WORKER_URL;
     const apiToken = c.env.EMAIL_API_TOKEN;
+    const emailWorker = c.env.EMAIL_WORKER;
 
     if (!workerUrl || !apiToken) {
       return composePage(c, {
         replyTo: replyToEmail,
         error: 'Email sending is not configured. Set EMAIL_WORKER_URL and EMAIL_API_TOKEN.',
+      });
+    }
+
+    if (!emailWorker) {
+      return composePage(c, {
+        replyTo: replyToEmail,
+        draft: { to, subject, body, from_address },
+        error: 'Email sending is not configured: the EMAIL_WORKER service binding is missing.',
       });
     }
 
@@ -234,7 +243,12 @@ export async function handleCompose(c: Context<{ Bindings: Env }>) {
       payload.in_reply_to_id = parseInt(in_reply_to_id);
     }
 
-    const res = await fetch(`${workerUrl}/emails/send`, {
+    // Call the backend through the service binding rather than a public-hostname
+    // fetch(). Both workers are on the same workers.dev zone, and Cloudflare
+    // blocks same-zone worker→worker HTTP subrequests (error 1042). The binding
+    // routes directly to eka-email-worker and sidesteps that restriction. The
+    // URL hostname is irrelevant for a bound fetch — only the path is used.
+    const res = await emailWorker.fetch(`${workerUrl}/emails/send`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiToken}`,
