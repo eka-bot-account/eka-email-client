@@ -8,6 +8,12 @@ interface ComposeProps {
   fromAddress?: string;
   error?: string;
   success?: string;
+  draft?: {
+    to?: string;
+    subject?: string;
+    body?: string;
+    from_address?: string;
+  };
 }
 
 function extractEmailAddress(full: string): string {
@@ -37,7 +43,7 @@ function quoteBody(email: Email): string {
 }
 
 export async function composePage(c: Context<{ Bindings: Env }>, props: ComposeProps = {}) {
-  const { replyTo, error, success } = props;
+  const { replyTo, error, success, draft } = props;
 
   // Determine default from address for replies
   let defaultFrom = 'eka@ai.weiyen.net';
@@ -69,6 +75,14 @@ export async function composePage(c: Context<{ Bindings: Env }>, props: ComposeP
     defaultSubject = subj.startsWith('Re:') ? subj : `Re: ${subj}`;
 
     defaultBody = quoteBody(replyTo);
+  }
+
+  // Preserve what the user typed if a send failed
+  if (draft) {
+    if (draft.from_address) defaultFrom = draft.from_address;
+    if (draft.to !== undefined) defaultTo = draft.to;
+    if (draft.subject !== undefined) defaultSubject = draft.subject;
+    if (draft.body !== undefined) defaultBody = draft.body;
   }
 
   return c.html(
@@ -123,6 +137,9 @@ export async function composePage(c: Context<{ Bindings: Env }>, props: ComposeP
                 </option>
                 <option value="hello@stratachecks.com" selected={defaultFrom === 'hello@stratachecks.com'}>
                   StrataChecks &lt;hello@stratachecks.com&gt;
+                </option>
+                <option value="info@stratachecks.com.au" selected={defaultFrom === 'info@stratachecks.com.au'}>
+                  StrataChecks &lt;info@stratachecks.com.au&gt;
                 </option>
               </select>
             </div>
@@ -227,10 +244,24 @@ export async function handleCompose(c: Context<{ Bindings: Env }>) {
     });
 
     if (!res.ok) {
-      const errBody = await res.json().catch(() => ({ error: 'Unknown error' })) as { error?: string };
+      // Read the raw body once — it may be JSON (worker error) or plain text
+      // (a Cloudflare edge error page). Surface whatever we actually got so the
+      // failure is diagnosable instead of a useless "Unknown error".
+      let detail = '';
+      const raw = await res.text().catch(() => '');
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as { error?: string };
+          detail = parsed.error || raw.slice(0, 300);
+        } catch {
+          detail = raw.slice(0, 300);
+        }
+      }
+      if (!detail) detail = res.statusText || 'no response body';
       return composePage(c, {
         replyTo: replyToEmail,
-        error: `Failed to send: ${errBody.error || res.statusText}`,
+        draft: { to, subject, body, from_address },
+        error: `Failed to send (HTTP ${res.status}): ${detail}`,
       });
     }
 
@@ -242,6 +273,7 @@ export async function handleCompose(c: Context<{ Bindings: Env }>) {
   } catch (err: any) {
     return composePage(c, {
       replyTo: replyToEmail,
+      draft: { to, subject, body, from_address },
       error: `Error: ${err.message}`,
     });
   }
